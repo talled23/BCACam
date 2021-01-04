@@ -11,6 +11,7 @@ while(True):
 
     # Our operations on the frame come here
     # apply filters here probably
+    # changing color hue can be done here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Display the resulting frame

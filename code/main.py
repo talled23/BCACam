@@ -8,9 +8,11 @@ cap = cv2.VideoCapture(0)
 upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 # upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 grey = 0
+frozen = False
 
 while(True):
     # Capture frame-by-frame
+    
     ret, frame = cap.read()
 
     if grey % 2 == 0:
@@ -39,6 +41,8 @@ while(True):
     k = cv2.waitKey(1) & 0xFF
     if k == ord('m'):
         grey += 1
+    if k == ord('f'):
+        frozen = not (frozen)
     elif k == 27:
         break
 

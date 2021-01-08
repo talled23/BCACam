@@ -2,52 +2,58 @@
 # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 import numpy as np
 import cv2
-from pyvirtualcam import *
+import pyvirtualcam
+import pkgutil
 
 f = open('./haarcascade_frontalface_alt.xml', 'r')
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+cap.set(cv2.CAP_PROP_FPS, 30)
+
 # just face detection built into Open CV, must have it installed in C: drive
 upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 # upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 grey = 0
 frozen = False
 
+with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
+    while(True):
+        # Capture frame-by-frame
+        
+        ret, frame = cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2RGBA)
+        cam.send(frame)
+        cam.sleep_until_next_frame()
+        # if grey % 2 == 0:
+        #     color = cv2.COLOR_BGR2GRAY
+        # else:
+        #     color = cv2.COLOR_BGR2HSV_FULL
 
-while(True):
-    # Capture frame-by-frame
-    
-    ret, frame = cap.read()
+        # Our operations on the frame come here
+        # apply filters here probably
+        # changing color hue can be done here
+        # gray = cv2.cvtColor(frame, color)
 
-    if grey % 2 == 0:
-        color = cv2.COLOR_BGR2GRAY
-    else:
-        color = cv2.COLOR_BGR2HSV_FULL
+        # the detection
+        # upper_body = upper_body_cascade.detectMultiScale(gray, 1.3, 5)
 
-    # Our operations on the frame come here
-    # apply filters here probably
-    # changing color hue can be done here
-    gray = cv2.cvtColor(frame, color)
-
-    # the detection
-    upper_body = upper_body_cascade.detectMultiScale(gray, 1.3, 5)
-
-    # prints data to console for now
-    print(upper_body)
+        # prints data to console for now
+        # print(upper_body)
 
 
-    # Display the resulting frame
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(gray,'HiRemi',(10,300), font, 4,(255,255,255),2,cv2.LINE_AA)
-    cv2.imshow('frame',gray)
-    
-    k = cv2.waitKey(1) & 0xFF
-    if k == ord('m'):
-        grey += 1
-    if k == ord('f'):
-        frozen = not (frozen)
-    elif k == 27:
-        break
-
+        # Display the resulting frame
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # cv2.putText(gray,'HiRemi',(10,300), font, 4,(255,255,255),2,cv2.LINE_AA)
+        # cv2.imshow('frame',gray)
+        
+        # k = cv2.waitKey(1) & 0xFF
+        # if k == ord('m'):
+        #     grey += 1
+        # if k == ord('f'):
+        #     frozen = not (frozen)
+        # elif k == 27:
+        #     break
         
 
 # When everything done, release the capture

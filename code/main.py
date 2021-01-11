@@ -17,6 +17,10 @@ upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 grey = 0
 frozen = False
 
+filter_dict = {
+    1: cv2.COLOR_BGR2RGB,
+    2: cv2.COLOR_BGR2HSV
+}
 # Create a black image
 
 
@@ -27,7 +31,9 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2RGBA)
+            if grey != 0:
+                frame = cv2.cvtColor(frame, filter_dict[grey])
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
             # frame = cv2.medianBlur(frame, 5)
             # frame = cv2.flip(frame, -1)
         
@@ -42,7 +48,10 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
 
         k = cv2.waitKey(1) & 0xFF
         if k == ord('m'):
-            grey += 1
+            if grey < 2:
+                grey+=1
+            else:
+                grey = 0
         if k == ord('f'):
             frozen = not (frozen)
         elif k == 27:

@@ -13,6 +13,7 @@ cap.set(cv2.CAP_PROP_FPS, 30)
 
 # just face detection built into Open CV, must have it installed in C: drive
 upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 grey = 0
 frozen = False
@@ -32,6 +33,9 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
+            eyes = eye_cascade.detectMultiScale(frame)
+            for (ex,ey,ew,eh) in eyes:
+                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)

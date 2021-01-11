@@ -19,7 +19,8 @@ frozen = False
 
 filter_dict = {
     1: cv2.COLOR_BGR2RGB,
-    2: cv2.COLOR_BGR2HSV
+    2: cv2.COLOR_BGR2HSV,
+    3: cv2.COLOR_BGR2Luv
 }
 # Create a black image
 
@@ -48,7 +49,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
 
         k = cv2.waitKey(1) & 0xFF
         if k == ord('m'):
-            if grey < 2:
+            if grey < len(filter_dict):
                 grey+=1
             else:
                 grey = 0

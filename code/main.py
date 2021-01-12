@@ -1,3 +1,14 @@
+# python -m pip install plyer
+from plyer import notification
+
+def postureFix():
+    notification.notify(
+        title='Fix your posture',
+        message='Idiot',
+        app_icon=None,  # i want it to be kanye.ico'
+        timeout=1,  # seconds
+    )
+
 # starter code taken from documentation
 # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 import numpy as np
@@ -33,9 +44,9 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
-            eyes = eye_cascade.detectMultiScale(frame)
-            for (ex,ey,ew,eh) in eyes:
-                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            # eyes = eye_cascade.detectMultiScale(frame)
+            # for (ex,ey,ew,eh) in eyes:
+            #     cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -59,6 +70,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
                 grey = 0
         if k == ord('f'):
             frozen = not (frozen)
+        if k == ord('n'):
+            postureFix()
         elif k == 27:
             break
 

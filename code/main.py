@@ -27,6 +27,7 @@ upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 grey = 0
+light = 0
 frozen = False
 flip = False
 filter_dict = {
@@ -36,6 +37,8 @@ filter_dict = {
 }
 text = ''
 
+def brightnessControl(image, level):
+    return cv2.convertScaleAbs(image, beta=level)
 
 ret, frame = cap.read()
 
@@ -50,6 +53,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+            frame = brightnessControl(frame, light)
             # frame = cv2.medianBlur(frame, 5)
             if(flip):
                 frame = cv2.flip(frame, -1)
@@ -76,6 +80,10 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             postureFix()
         if k == ord('l'):
             flip = not flip
+        if k == ord('q'):
+            light+=10
+        if k == ord('w'):
+            light-=10
         elif k == 27:
             break
         

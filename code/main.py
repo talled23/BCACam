@@ -6,7 +6,7 @@ def postureFix():
         title='Fix your posture',
         message='Idiot',
         app_icon=None,  # i want it to be kanye.ico'
-        timeout=1,  # seconds
+        timeout=10,  # seconds
     )
 
 # starter code taken from documentation
@@ -28,13 +28,13 @@ eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 grey = 0
 frozen = False
-
+flip = False
 filter_dict = {
     1: cv2.COLOR_BGR2RGB,
     2: cv2.COLOR_BGR2HSV,
     3: cv2.COLOR_BGR2Luv
 }
-# Create a black image
+text = ''
 
 
 ret, frame = cap.read()
@@ -44,14 +44,15 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
-            # eyes = eye_cascade.detectMultiScale(frame)
-            # for (ex,ey,ew,eh) in eyes:
-            #     cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            eyes = eye_cascade.detectMultiScale(frame)
+            for (ex,ey,ew,eh) in eyes:
+                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
             # frame = cv2.medianBlur(frame, 5)
-            # frame = cv2.flip(frame, -1)
+            if(flip):
+                frame = cv2.flip(frame, -1)
         
         img = np.zeros((512,512,3), np.uint8)
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -60,6 +61,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         cv2.putText(img,'Press \'f\' - freeze camera',(10,200), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'m\' - change filter',(10,250), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'esc\' - close the program',(10,300), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+        cv2.putText(img,'Press \'l\' - flip',(10,350), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.imshow('image',img)
 
         k = cv2.waitKey(1) & 0xFF
@@ -72,6 +74,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             frozen = not (frozen)
         if k == ord('n'):
             postureFix()
+        if k == ord('l'):
+            flip = not flip
         elif k == 27:
             break
 
@@ -96,7 +100,6 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
 
         # Display the resulting frame
         # font = cv2.FONT_HERSHEY_SIMPLEX
-        # cv2.putText(gray,'HiRemi',(10,300), font, 4,(255,255,255),2,cv2.LINE_AA)
         # cv2.imshow('frame',gray)
         
         

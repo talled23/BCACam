@@ -45,8 +45,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         if (not frozen):
             ret, frame = cap.read()
             eyes = eye_cascade.detectMultiScale(frame)
-            for (ex,ey,ew,eh) in eyes:
-                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            # for (ex,ey,ew,eh) in eyes:
+            #     cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -78,6 +78,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             flip = not flip
         elif k == 27:
             break
+        
+        
 
         cam.send(frame)
         cam.sleep_until_next_frame()

@@ -15,6 +15,7 @@ import numpy as np
 import cv2
 import pyvirtualcam
 import pkgutil
+import math
 
 f = open('./haarcascade_frontalface_alt.xml', 'r')
 cap = cv2.VideoCapture(0)
@@ -23,11 +24,12 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 cap.set(cv2.CAP_PROP_FPS, 30)
 
 # just face detection built into Open CV, must have it installed in C: drive
-upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-# upper_body_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+upper_body_cascade = cv2.CascadeClassifier('haarcascade_upperbody.xml')
 grey = 0
 light = 0
+good_posture = None
 frozen = False
 flip = False
 filter_dict = {
@@ -47,9 +49,10 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
-            eyes = eye_cascade.detectMultiScale(frame)
-            # for (ex,ey,ew,eh) in eyes:
-            #     cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            face = face_cascade.detectMultiScale(frame)
+            print(face)
+            for (ex,ey,ew,eh) in face:
+                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -66,6 +69,11 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         cv2.putText(img,'Press \'m\' - change filter',(10,250), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'esc\' - close the program',(10,300), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'l\' - flip',(10,350), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+        cv2.putText(img,'Press \'c\' - calibrate to good posture',(10,350), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+
+
+
+
         cv2.imshow('image',img)
 
         k = cv2.waitKey(1) & 0xFF
@@ -76,8 +84,9 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
                 grey = 0
         if k == ord('f'):
             frozen = not (frozen)
-        if k == ord('n'):
-            postureFix()
+        if k == ord('c'):
+            if(len(face)>0):
+                good_posture = face[0]
         if k == ord('l'):
             flip = not flip
         if k == ord('q'):
@@ -87,7 +96,11 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         elif k == 27:
             break
         
-        
+        if(len(face)>0 and good_posture is not None):
+            rmse = math.sqrt(sum([math.pow(face[0][i]-good_posture[i], 2) for i in range(len(face[0]))]))
+            if rmse > 225:
+                postureFix()
+            print("The current RMSE is %.4f", rmse)        
 
         cam.send(frame)
         cam.sleep_until_next_frame()

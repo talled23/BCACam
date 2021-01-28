@@ -5,7 +5,7 @@ def postureFix():
     notification.notify(
         title='Fix your posture',
         message='Idiot',
-        app_icon=None,  # i want it to be kanye.ico'
+        app_icon='./code/kanye.ico',  # i want it to be kanye.ico'
         timeout=10,  # seconds
     )
 
@@ -16,6 +16,10 @@ import cv2
 import pyvirtualcam
 import pkgutil
 import math
+
+
+
+
 
 f = open('./haarcascade_frontalface_alt.xml', 'r')
 cap = cv2.VideoCapture(0)
@@ -50,11 +54,11 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
-            if (tracking):
-                face = face_cascade.detectMultiScale(frame)
-                print(face)
-                for (ex,ey,ew,eh) in face:
-                    cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            # if (tracking):
+            face = face_cascade.detectMultiScale(frame)
+            print(face)
+            for (ex,ey,ew,eh) in face:
+                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -77,12 +81,12 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
 
         cv2.imshow('image',img)
 
-        if(tracking):
-            if(len(face)>0 and good_posture is not None):
-                rmse = math.sqrt(sum([math.pow(face[0][i]-good_posture[i], 2) for i in range(len(face[0]))]))
-                if rmse > 225:
-                    postureFix()
-                print("The current RMSE is %.4f", rmse)   
+        # if(tracking):
+        if(len(face)>0 and good_posture is not None):
+            rmse = math.sqrt(sum([math.pow(face[0][i]-good_posture[i], 2) for i in range(len(face[0]))]))
+            if rmse > 225:
+                postureFix()
+            print("The current RMSE is %.4f", rmse)   
 
         k = cv2.waitKey(1) & 0xFF
         if k == ord('m'):
@@ -106,8 +110,6 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         elif k == 27:
             break
         
-     
-
         cam.send(frame)
         cam.sleep_until_next_frame()
         

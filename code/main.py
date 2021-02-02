@@ -4,7 +4,7 @@ from plyer import notification
 def postureFix():
     notification.notify(
         title='Fix your posture',
-        message='Idiot',
+        message='Or else...',
         app_icon='./code/kanye.ico',  # i want it to be kanye.ico'
         timeout=10,  # seconds
     )
@@ -16,9 +16,7 @@ import cv2
 import pyvirtualcam
 import pkgutil
 import math
-
-
-
+import handy
 
 
 f = open('./haarcascade_frontalface_alt.xml', 'r')
@@ -34,6 +32,7 @@ upper_body_cascade = cv2.CascadeClassifier('haarcascade_upperbody.xml')
 grey = 0
 light = 0
 tracking = False
+vis_tracking = True
 good_posture = None
 frozen = False
 flip = False
@@ -49,16 +48,20 @@ def brightnessControl(image, level):
 
 ret, frame = cap.read()
 
+
 with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
     while(True):
         # Capture frame-by-frame
         if (not frozen):
             ret, frame = cap.read()
-            # if (tracking):
-            face = face_cascade.detectMultiScale(frame)
-            print(face)
-            for (ex,ey,ew,eh) in face:
-                cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            # hand = handy.detect_hand(frame, hist)
+
+            if (tracking):
+                face = face_cascade.detectMultiScale(frame)
+                print(face)
+                if(vis_tracking):
+                    for (ex,ey,ew,eh) in face:
+                        cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
             if grey != 0:
                 frame = cv2.cvtColor(frame, filter_dict[grey])
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -74,19 +77,20 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         cv2.putText(img,'Press \'f\' - freeze/unfreeze camera',(10,200), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'m\' - change filter',(10,250), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'l\' - flip the camera',(10,300), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
-        cv2.putText(img,'Press \'q/z\' - brighten/darken camera',(10,350), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+        cv2.putText(img,'Press \'q/w\' - brighten/darken camera',(10,350), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'v\' - turn on/off tracking',(10,425), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
-        cv2.putText(img,'Press \'c\' - calibrate to good posture',(10,475), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+        cv2.putText(img,'Press \'g\' - turn on/off visual tracking',(10,450), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+        cv2.putText(img,'Press \'c\' - calibrate to good posture',(10,500), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'esc\' - close the program',(10,575), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
 
         cv2.imshow('image',img)
 
-        # if(tracking):
-        if(len(face)>0 and good_posture is not None):
-            rmse = math.sqrt(sum([math.pow(face[0][i]-good_posture[i], 2) for i in range(len(face[0]))]))
-            if rmse > 225:
-                postureFix()
-            print("The current RMSE is %.4f", rmse)   
+        if(tracking):
+            if(len(face)>0 and good_posture is not None):
+                rmse = math.sqrt(sum([math.pow(face[0][i]-good_posture[i], 2) for i in range(len(face[0]))]))
+                if rmse > 225:
+                    postureFix()
+                print("The current RMSE is %.4f", rmse)   
 
         k = cv2.waitKey(1) & 0xFF
         if k == ord('m'):
@@ -107,6 +111,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             light-=10
         if k == ord('v'):
             tracking = not (tracking)
+        if k == ord('g'):
+            vis_tracking = not (vis_tracking)
         elif k == 27:
             break
         

@@ -16,7 +16,6 @@ import cv2
 import pyvirtualcam
 import pkgutil
 import math
-import handy
 
 
 f = open('./haarcascade_frontalface_alt.xml', 'r')
@@ -35,11 +34,13 @@ tracking = False
 vis_tracking = True
 good_posture = None
 frozen = False
-flip = False
+flipy = 0
+flip = [-2, 1, 0, -1]
 filter_dict = {
     1: cv2.COLOR_BGR2RGB,
     2: cv2.COLOR_BGR2HSV,
-    3: cv2.COLOR_BGR2Luv
+    3: cv2.COLOR_BGR2Luv,
+    4: cv2.COLOR_BGR2GRAY
 }
 text = ''
 
@@ -67,8 +68,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
             frame = brightnessControl(frame, light)
             # frame = cv2.medianBlur(frame, 5)
-            if(flip):
-                frame = cv2.flip(frame, -1)
+            if(flipy != 0):
+                frame = cv2.flip(frame, flip[flipy])
         
         img = np.zeros((600,600,3), np.uint8)
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -78,7 +79,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
         cv2.putText(img,'Press \'m\' - change filter',(10,250), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'l\' - flip the camera',(10,300), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'q/w\' - brighten/darken camera',(10,350), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
-        cv2.putText(img,'Press \'v\' - turn on/off tracking',(10,425), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
+        cv2.putText(img,'Press \'v\' - turn on/off tracking',(10,400), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'g\' - turn on/off visual tracking',(10,450), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'c\' - calibrate to good posture',(10,500), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
         cv2.putText(img,'Press \'esc\' - close the program',(10,575), font, 0.75,(163, 0, 161),2,cv2.LINE_AA)
@@ -104,7 +105,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
             if(len(face)>0):
                 good_posture = face[0]
         if k == ord('l'):
-            flip = not flip
+            flipy = (flipy + 1) % 4
         if k == ord('q'):
             light+=10
         if k == ord('w'):

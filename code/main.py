@@ -26,8 +26,6 @@ cap.set(cv2.CAP_PROP_FPS, 30)
 
 # just face detection built into Open CV, must have it installed in C: drive
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
-eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-upper_body_cascade = cv2.CascadeClassifier('haarcascade_upperbody.xml')
 grey = 0
 light = 0
 tracking = False
